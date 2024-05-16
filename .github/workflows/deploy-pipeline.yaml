@@ -46,13 +46,30 @@ jobs:
     needs: [build]
     steps:
     - name: Create release
-      uses: ncipollo/release-action@v1.14.0
+      id: create-release
+      uses: actions/create-release@v1
       with:
-        tag: ${{ github.run_number }}
-        name: Releas from ${{ github.run_number }}
+        tag_name: ${{ github.run_number }}
+        release_name: Releas from ${{ github.run_number }}
         body: New release from ${{ github.sha }}
         draft: false
         prerelease: false
+    - name: download artifact
+      uses: actions/download-artifact@v4.1.7
+      with:
+        name: zipped-bundle
+    - name: upload release artifact
+      uses: actions/upload-release-asset@v1
+      env: 
+        GITHUB_TOKEN: ${{ secrets.github_token }}
+      with: 
+        upload_url: ${{ steps.create-release.outputs.upload_url }}
+        asset_path: ./${{ github_sha }}.zip
+        asset_name: source_code.zip
+        asset_content_type: applications/zip
+    
+        
+  
       
         
         
